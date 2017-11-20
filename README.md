@@ -78,4 +78,3 @@ directories. No guarantees.
 |            |             | UI               |  3000          | 30023 |
 | Rabbit     | MOM         | Client           |  5672          | 30100 |
 |            |             | Management UI    | 15672          | 30101 |
-| hsqldb     | SQL server  | jdbc             |  9001          | 31001 |
