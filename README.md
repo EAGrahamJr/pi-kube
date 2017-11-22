@@ -6,15 +6,16 @@ Raspberry Pi 3. Based on the article at
 # Quick Setup Instructions
 ## Initial Image
 1. Use the Debian Lite image and burn to disk per usual
+   - I've had problems with the 09/07/2017 Raspian Lite image - YMMV
 1. Mount the FAT partition and make the `ssh` file (enables `ssh` on first boot)
    - ```bash
      mount /dev/sde1 /mnt
      touch /mnt/ssh
      umount /mnt
      ```
-1. Do the usual boot and `raspi-config` (should be able to use `mDNS` name `raspberrypi.local` or `raspberry.local`)
+1. Do the usual boot and `raspi-config` (should be able to use `mDNS` name `raspberrypi.local`)
 
-## Advanced Modifications
+## Modify and Install
 1. Turn off swap 
    - ```bash
      sudo dphys-swapfile swapoff && sudo dphys-swapfile uninstall && sudo update-rc.d dphys-swapfile remove
@@ -23,13 +24,11 @@ Raspberry Pi 3. Based on the article at
    - Edit `/boot/cmdline.txt`
    - Add `cgroup_enable=cpuset`
      - if `memory` is not enabled, add `cgroup_enable=memory cgroup_memory=1`
-1. Enable the local insecure registry
-   - Edit `/etc/docker/daemon.json`
-   - Add `{ "insecure-registries":["<hostnane>:<port>"] }`
-
-## Install More Stuff
 1. Install Docker
    - `curl -sSL get.docker.com | sh && sudo usermod pi -aG docker`
+   - If available, enable the local insecure registry
+     - Edit `/etc/docker/daemon.json`
+     - Add `{ "insecure-registries":["<hostnane>:<port>"] }`
 1. Install Kubeadm
    - ```bash
      curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
@@ -37,6 +36,7 @@ Raspberry Pi 3. Based on the article at
        sudo apt-get update -q && \
        sudo apt-get install -qy kubeadm
      ```
+1. Don't forget to reboot to pick up all of the changes...
      
 ## Start It Up
 1. Initialize the Master (never expiring token)
