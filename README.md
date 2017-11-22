@@ -52,6 +52,7 @@ Raspberry Pi 3. Based on the article at
 1. Install one or more worker nodes
    - If no worker nodes, the next several steps will stall
    - May also want to "taint" the Master to also act as worker: `kubectl taint nodes --all node-role.kubernetes.io/master-`
+   - This _may_ reset the previous - `kubectl taint node <masternode> node-role.kubernetes.io/master=:NoSchedule`
 1. Install the dashboard
    - ```bash
      GITLOC="https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/"
