@@ -23,7 +23,7 @@ Raspberry Pi 3. Based on the article at
 1. Enable all the `cgroup` settings
    - Edit `/boot/cmdline.txt`
    - Add `cgroup_enable=cpuset`
-     - if `memory` is not enabled, add `cgroup_enable=memory cgroup_memory=1`
+   - Upgrade from Jessie to Stretch, `memory` was disabled, so add `cgroup_enable=memory cgroup_memory=1`
 1. Install Docker
    - `curl -sSL get.docker.com | sh && sudo usermod pi -aG docker`
    - If available, enable the local insecure registry
