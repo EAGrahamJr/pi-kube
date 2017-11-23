@@ -1,13 +1,13 @@
 #!/bin/sh
 
 ######################################################################################################
-# Start script: starts single/master or slave node and with/out HA queues
-
+# Configurations, which can be over-ridden
 ulimit -n 10240
 
-# if we're "forcing" the hostname, add it to /etc/hosts so erlang can figure it out
-if [ "$HOSTNAME" ] ; then
-    echo "127.0.0.1      $HOSTNAME" >> /etc/hosts
+######################################################################################################
+# Set up potential clustering "cookie"
+if [ ! -z "$RABBIT_COOKIE" ] ; then
+    echo "$RABBIT_COOKIE" > /var/lib/rabbitmq/.erlang.cookie
 fi
 
 # set HA policy if present
@@ -27,7 +27,3 @@ fi
 
 # start the server
 exec "$@"
-
-#    rabbitmqctl stop_app
-#    rabbitmqctl join_cluster rabbit@${CLUSTER_WITH}
-#    rabbitmqctl start_app

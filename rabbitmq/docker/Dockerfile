@@ -12,24 +12,26 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/* /rabbit.deb
 
 # copy in the plugin
-ADD plugins/* /usr/lib/rabbitmq/lib/rabbitmq_server-3.6.5/plugins/
+ADD plugins/* /usr/lib/rabbitmq/lib/rabbitmq_server-3.6.14/plugins/
 
 # setup
 RUN rabbitmq-plugins enable --offline rabbitmq_management autocluster && \
-	echo "[{rabbit, [{loopback_users, []}]}]." > /etc/rabbitmq/rabbitmq.config && \
 	mkdir /data && \
 	chown -R rabbitmq:rabbitmq /data
 
-# log to STDOUT, set the base directory, cluster to etcd
-ENV RABBITMQ_LOGS=- RABBITMQ_SASL_LOGS=- RABBITMQ_MNESIA_BASE=/data
+# log to STDOUT
+ENV RABBITMQ_LOGS=- RABBITMQ_SASL_LOGS=-
 
-# Define mount points.
+# Define mount points and set the data directory to point to it
+# Note: if this is mounted (see next), persistent stores can be used
 VOLUME "/data"
+ENV  RABBITMQ_MNESIA_BASE=/data
 
 # Expose ports.
 EXPOSE 4369 5671 5672 15672 25672
 
-# set the HA policy if defined
+# copy in the start script and configs
+COPY rabbitmq.config /etc/rabbitmq
 COPY start.sh /
 ENTRYPOINT [ "/start.sh" ]
 
