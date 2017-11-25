@@ -1,3 +1,5 @@
+#####################################################################################
+# Single node Rabbit MQ server.
 ---
 apiVersion: apps/v1beta2
 kind: Deployment
@@ -19,15 +21,18 @@ spec:
       - name: rabbit
         image: {{ docker-repo }}/{{ docker-image }}
         ports:
+          - containerPort: 1883
+            name: mqtt
           - containerPort: 4369
+            name: epmd
           - containerPort: 5671
-            name: client-one
+            name: tls
           - containerPort: 5672
-            name: client-two
+            name: aqmp
           - containerPort: 15672
             name: management
           - containerPort: 25672
-          - containerPort: 1883
+            name: cluster
 ---
 apiVersion: v1
 kind: Service
@@ -38,11 +43,16 @@ metadata:
   namespace: default
 spec:
   ports:
+  - port: 1883
+    protocol: TCP
+    targetPort: 1883
+    nodePort: 30102
+    name: mqtt
   - port: 5672
     protocol: TCP
     targetPort: 5672
     nodePort: 30100
-    name: client-two
+    name: client
   - port: 15672
     protocol: TCP
     targetPort: 15672
