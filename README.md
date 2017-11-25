@@ -23,7 +23,7 @@ Raspberry Pi 3. Based on the article at
 1. Enable all the `cgroup` settings
    - Edit `/boot/cmdline.txt`
    - Add `cgroup_enable=cpuset`
-   - Upgrade from Jessie to Stretch, `memory` was disabled, so add `cgroup_enable=memory cgroup_memory=1`
+   - If `memory` is not enabled, add `cgroup_enable=memory cgroup_memory=1`
 1. Install Docker
    - `curl -sSL get.docker.com | sh && sudo usermod pi -aG docker`
    - If available, enable the local insecure registry
@@ -66,6 +66,17 @@ Raspberry Pi 3. Based on the article at
    - `kubectl apply -f setup/heapster-binding.yaml`
    - `kubectl apply -f setup/heapster.yaml`
 
+## RBAC
+Kubernetes now runs by default in a "locked-down" authentication/authorization configuration. If you want to remove the
+security restrictions (_really_ bad idea for a prod system), you can apply
+```bash
+kubectl create clusterrolebinding permissive-binding \
+  --clusterrole=cluster-admin \
+  --user=admin \
+  --user=kubelet \
+  --group=system:serviceaccounts
+```
+
 # Services
 Deploy some of this stuff with the `k8s-apply.sh` script. Some of the images are also available in the individual
 directories. No guarantees.
@@ -79,3 +90,20 @@ directories. No guarantees.
 |            |             | UI               |  3000          | 30023 |
 | Rabbit     | MOM         | Client           |  5672          | 30100 |
 |            |             | Management UI    | 15672          | 30101 |
+
+# GOGS
+[GOGS](https://github.com/gogits/gogs) is a really simple, self-hosted GitHub-like server. This example is setup to 
+use a `Persisent Volume` mount via NFS. The "hardest" part is setting up the `git` remotes to use the off-color SSH 
+port correctly. In order to do this, you need to use the SSH "form" of the Git URL:
+
+> ssh://git@<kube.node>:30022/<org>/<project>.git
+
+## RabbitMQ
+A very simple image that relies more on environment variables than a configuration. Currently makes a 3.6.x image,
+including the `autocluster` v 0.10 plugin and enables the _management_ plugin by default.
+ 
+Because I don't understand why Docker build processes make download requests _inside_ the Docker file, the image is 
+built with the (surprise!) `build.sh` script or `Makefile` provided. 
+
+To run the cluster, the `auth` artifacts need to be applied first so that the auto-cluster plugin can access the 
+Kubernetes API.
