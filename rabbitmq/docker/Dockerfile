@@ -1,18 +1,20 @@
-FROM resin/rpi-raspbian:jessie
+FROM resin/rpi-raspbian:stretch
 
 # get rabbit from whatever was downloaded to the host
-COPY rabbitmq-server* rabbit.deb
+ARG RVER
+ARG DEB
+COPY $DEB /
 
 # install the rabbit, use apt to pick up dependencies, then clean up the mess
 RUN apt-get update -qq && \
-    dpkg -i --force-depends rabbit.deb && \
-    apt-get install -f --no-install-recommends -yqq && \
+    dpkg -i --force-depends $DEB && \
+    apt-get install --fix-broken --no-install-recommends -yqq && \
     apt-get install --no-install-recommends -yqq dnsutils && \
     apt-get autoremove -yqq && \
-    rm -rf /var/lib/apt/lists/* /rabbit.deb
+    rm -rf /var/lib/apt/lists/* /*.deb
 
-# copy in the plugin
-ADD plugins/* /usr/lib/rabbitmq/lib/rabbitmq_server-3.6.14/plugins/
+# copy in any plugins
+ADD *.ez /usr/lib/rabbitmq/lib/rabbitmq_server-$RVER/plugins/
 
 # setup
 RUN rabbitmq-plugins enable --offline rabbitmq_management autocluster && \

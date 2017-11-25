@@ -1,15 +1,10 @@
 #!/bin/sh
 
 ######################################################################################################
-# Configurations, which can be over-ridden
+# Needs more stuff
 ulimit -n 10240
 
 ######################################################################################################
-# Set up potential clustering "cookie"
-if [ ! -z "$RABBIT_COOKIE" ] ; then
-    echo "$RABBIT_COOKIE" > /var/lib/rabbitmq/.erlang.cookie
-fi
-
 # set HA policy if present
 if [ "$HA_POLICY" ] ; then
     # because we have to wait until the service is running, create a little script that does the command later
@@ -25,5 +20,6 @@ EOF
     nohup /ha.sh &
 fi
 
+######################################################################################################
 # start the server
 exec "$@"
