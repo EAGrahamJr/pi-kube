@@ -102,8 +102,10 @@ port correctly. In order to do this, you need to use the SSH "form" of the Git U
 A very simple image that relies more on environment variables than a configuration. Currently makes a 3.6.x image,
 including the `autocluster` v 0.10 plugin and enables the _management_ plugin by default.
  
-Because I don't understand why Docker build processes make download requests _inside_ the Docker file, the image is 
-built with the (surprise!) `build.sh` script or `Makefile` provided. 
+The Dockerfile relies on _build-arg_ argument passing, so a more recent version of `docker` is required to build it.
 
+_Note:_ I tried using `ADD` to directly copy in the download files, but that seemed to have borked some permissions.
+
+### Kubernetes
 To run the cluster, the `auth` artifacts need to be applied first so that the auto-cluster plugin can access the 
-Kubernetes API.
+Kubernetes API. Note that the authorization is overly broad and should really be dialed down.
