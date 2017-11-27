@@ -3,6 +3,8 @@ A collection of notes and scripts for how I set up my personal Kubernetes cluste
 Raspberry Pi 3. Based on the article at
 [How to Build a Kubernetes Cluster with ARM Raspberry Pi then run .NET Core on OpenFaas](https://www.hanselman.com/blog/HowToBuildAKubernetesClusterWithARMRaspberryPiThenRunNETCoreOnOpenFaas.aspx)
 
+https://github.com/EAGrahamJr/pi-kube/PiCluster-11222017.jpg
+
 # Quick Setup Instructions
 ## Initial Image
 1. Use the Debian Lite image and burn to disk per usual
