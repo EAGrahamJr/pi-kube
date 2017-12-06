@@ -7,15 +7,15 @@ https://github.com/EAGrahamJr/pi-kube/PiCluster-11222017.jpg
 
 # Quick Setup Instructions
 ## Initial Image
-1. Use the Debian Lite image and burn to disk per usual
-   - I've had problems with the 09/07/2017 Raspian Lite image - YMMV
-1. Mount the FAT partition and make the `ssh` file (enables `ssh` on first boot)
-   - ```bash
-     mount /dev/sde1 /mnt
-     touch /mnt/ssh
-     umount /mnt
-     ```
-1. Do the usual boot and `raspi-config` (should be able to use `mDNS` name `raspberrypi.local`)
+This install used the Debian Lite 2017-08-16 "stretch" image. I've had problems with the 09/07/2017 Raspian Lite 
+image - YMMV.
+
+There are a lot of comprehensive (and redundant) tutorials on how to set up Raspberry Pi systems, so it won't be 
+re-hashed here again, too. But just for the record, the node names are:
+- huginn
+- muninn
+- psyche
+- ringo 
 
 ## Modify and Install
 1. Turn off swap 
@@ -31,7 +31,7 @@ https://github.com/EAGrahamJr/pi-kube/PiCluster-11222017.jpg
    - If available, enable the local insecure registry
      - Edit `/etc/docker/daemon.json`
      - Add `{ "insecure-registries":["<hostnane>:<port>"] }`
-1. Install Kubeadm
+1. Install `kubeadm`
    - ```bash
      curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
        echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list && \
@@ -39,7 +39,7 @@ https://github.com/EAGrahamJr/pi-kube/PiCluster-11222017.jpg
        sudo apt-get install -qy kubeadm
      ```
 1. Don't forget to reboot to pick up all of the changes...
-     
+
 ## Start It Up
 1. Initialize the Master (never expiring token)
    - `sudo kubeadm init --token-ttl=0`
@@ -49,24 +49,32 @@ https://github.com/EAGrahamJr/pi-kube/PiCluster-11222017.jpg
      mkdir -p $HOME/.kube && sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
      sudo chown $(id -u):$(id -g) $HOME/.kube/config
      ```
-1. Install the internal network - used _Weave_
+   - I also made a copy on my workstation and installed `kubectl` for full remote control
+1. Install the internal network - this installation uses _Weave_
    - [Pod Network](https://kubernetes.io/docs/setup/independent/create-cluster-kubeadm/#pod-network)
-1. Install one or more worker nodes
-   - If no worker nodes, the next several steps will stall
-   - May also want to "taint" the Master to also act as worker: `kubectl taint nodes --all node-role.kubernetes.io/master-`
+1. Install one or more worker nodes. As shown in the picture, this was done on a 4-node cluster (1 admin, 3 worker)
+   - If there are no worker nodes, the next several steps will stall
+   - To "taint" the Master to also act as worker: `kubectl taint nodes --all node-role.kubernetes.io/master-`
    - This _may_ reset the previous - `kubectl taint node <masternode> node-role.kubernetes.io/master=:NoSchedule`
 1. Install the dashboard
    - ```bash
+     # pulls the recommended version
      GITLOC="https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/"
      kubectl apply -f "$GITLOC/recommended/kubernetes-dashboard-arm.yaml"
+     # set up special admin by-pass for authentication
+     kubectl apply -f setup/dashboard-admin.yaml
+     # add a service to expose across all nodes (see table below)
+     kubectl apply -f setup/dashboard-service.yaml
      ```
-   - Set up special admin by-pass for authentication
-     - `kubectl apply -f setup/dashboard-admin.yaml`
-   - Add a service to expose across all nodes (see table below)
-     - `kubectl apply -f setup/dashboard-service.yaml`
-1. Install `Heapster` for more betterer monitoring
-   - `kubectl apply -f setup/heapster-binding.yaml`
-   - `kubectl apply -f setup/heapster.yaml`
+1. For more bells and whistles for monitoring, install Heapster/InfluxDB/Grafana. The files in the `setup` directory 
+were copied (and modified) from the 
+[Heapster/Influx](https://github.com/kubernetes/heapster/blob/master/docs/influxdb.md)) folks themselves.
+  - ```bash
+    kubectl apply -f setup/influxdb.yaml
+    # Just to be sure, wait until the pod is in **Running** state
+    kubectl apply -f setup/heapster.yaml
+    kubectl apply -f setup/heapster-rbac.yaml
+    ```
 
 ## RBAC
 Kubernetes now runs by default in a "locked-down" authentication/authorization configuration. If you want to remove the
@@ -87,7 +95,9 @@ directories. No guarantees.
 
 | App        | Description | Port Description | Container Port | Node Port |
 |------------|-------------|------------------|----------------|-----------|
-| Kubernetes | Web UI      |                  | 8443           | 31080 |
+| Kubernetes | Web UI      | UI               |  8443          | 31080 |
+| Grafana    | Monitoring  | UI               |    80          | 31082 |
+| Influxdb   | Monitoring  | DB               |  8086          | 31086 |
 | gogs       | github-lite | Client/SSH       |    22          | 30022 |
 |            |             | UI               |  3000          | 30023 |
 | Rabbit     | MOM         | Client           |  5672          | 30100 |

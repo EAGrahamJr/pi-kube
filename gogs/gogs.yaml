@@ -39,6 +39,9 @@ metadata:
   name: gogs
   namespace: default
 spec:
+  selector:
+    app: gogs
+  type: NodePort
   ports:
   - port: 22
     protocol: TCP
@@ -50,7 +53,4 @@ spec:
     targetPort: 3000
     nodePort: 30023
     name: management
-  selector:
-    app: gogs
-  type: NodePort
 
