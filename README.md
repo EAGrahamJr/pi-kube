@@ -103,7 +103,7 @@ directories. No guarantees.
 | Rabbit     | MOM         | Client           |  5672          | 30100 |
 |            |             | Management UI    | 15672          | 30101 |
 
-# GOGS
+## GOGS
 [GOGS](https://github.com/gogits/gogs) is a really simple, self-hosted GitHub-like server. This example is setup to 
 use a `Persisent Volume` mount via NFS. The "hardest" part is setting up the `git` remotes to use the off-color SSH 
 port correctly. In order to do this, you need to use the SSH "form" of the Git URL:
@@ -121,3 +121,6 @@ _Note:_ I tried using `ADD` to directly copy in the download files, but that see
 ### Kubernetes
 To run the cluster, the `auth` artifacts need to be applied first so that the auto-cluster plugin can access the 
 Kubernetes API. Note that the authorization is overly broad and should really be dialed down.
+
+## Grafana
+The deployment uses the "stock" K8S dashboards. There are a couple of customized dashobards in `setup/grafana`, as well.
