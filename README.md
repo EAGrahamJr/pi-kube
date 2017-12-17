@@ -69,12 +69,8 @@ re-hashed here again, too. But just for the record, the node names are:
 1. For more bells and whistles for monitoring, install Heapster/InfluxDB/Grafana. The files in the `setup` directory 
 were copied (and modified) from the 
 [Heapster/Influx](https://github.com/kubernetes/heapster/blob/master/docs/influxdb.md)) folks themselves.
-  - ```bash
-    kubectl apply -f setup/influxdb.yaml
-    # Just to be sure, wait until the pod is in **Running** state
-    kubectl apply -f setup/heapster.yaml
-    kubectl apply -f setup/heapster-rbac.yaml
-    ```
+  - The `Heapster` artifacts should be applied as a minimum - this will make the _Kubernetes_ dashboard prettier...
+  - Slightly customized _Cluster_ and _Pod_ Grafana dashboards are in `setup/grafana`
 
 ## RBAC
 Kubernetes now runs by default in a "locked-down" authentication/authorization configuration. If you want to remove the
