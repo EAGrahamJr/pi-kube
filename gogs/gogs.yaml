@@ -26,6 +26,14 @@ spec:
         volumeMounts:
           - mountPath: /data
             name: nfs-git
+        livenessProbe:
+          httpGet:
+            port: 3000
+          initialDelaySeconds: 60
+          failureThreshold: 2
+          successThreshold: 1
+          periodSeconds: 120
+          timeoutSeconds: 10
       volumes:
         - name: nfs-git
           persistentVolumeClaim:

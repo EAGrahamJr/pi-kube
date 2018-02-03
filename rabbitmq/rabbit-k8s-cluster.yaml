@@ -118,3 +118,12 @@ spec:
             name: management
           - containerPort: 25672
             name: cluster
+        livenessProbe:
+          tcpSocket:
+            port: 25672
+          initialDelaySeconds: 60
+          failureThreshold: 3
+          successThreshold: 1
+          periodSeconds: 15
+          timeoutSeconds: 5
+
