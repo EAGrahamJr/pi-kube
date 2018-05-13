@@ -1,3 +1,13 @@
+# Update 5/2018
+
+Some of my cluster survived a power failure, but one node did not. In all of my attempts
+to resurrect it and/or create a new Kubernetes cluster, I was unable to
+use **any** recent version (e.g. 1.10) to initialize. Ergo, this is likely to be stale.
+
+see [Kubeadm init stuck...](https://github.com/kubernetes/kubernetes/issues/61277)
+
+Caveat emptor.
+
 # Pi-Kube - My Kubernetes Cluster
 A collection of notes and scripts for how I set up my personal Kubernetes cluster on
 Raspberry Pi 3. Based on the article at
@@ -7,18 +17,18 @@ Raspberry Pi 3. Based on the article at
 
 # Quick Setup Instructions
 ## Initial Image
-This install used the Debian Lite 2017-08-16 "stretch" image. I've had problems with the 09/07/2017 Raspian Lite 
+This install used the Debian Lite 2017-08-16 "stretch" image. I've had problems with the 09/07/2017 Raspian Lite
 image - YMMV.
 
-There are a lot of comprehensive (and redundant) tutorials on how to set up Raspberry Pi systems, so it won't be 
+There are a lot of comprehensive (and redundant) tutorials on how to set up Raspberry Pi systems, so it won't be
 re-hashed here again, too. But just for the record, the node names are:
 - huginn
 - muninn
 - psyche
-- ringo 
+- ringo
 
 ## Modify and Install
-1. Turn off swap 
+1. Turn off swap
    - ```bash
      sudo dphys-swapfile swapoff && sudo dphys-swapfile uninstall && sudo update-rc.d dphys-swapfile remove
      ```
@@ -66,8 +76,8 @@ re-hashed here again, too. But just for the record, the node names are:
      # add a service to expose across all nodes (see table below)
      kubectl apply -f setup/dashboard-service.yaml
      ```
-1. For more bells and whistles for monitoring, install Heapster/InfluxDB/Grafana. The files in the `setup` directory 
-were copied (and modified) from the 
+1. For more bells and whistles for monitoring, install Heapster/InfluxDB/Grafana. The files in the `setup` directory
+were copied (and modified) from the
 [Heapster/Influx](https://github.com/kubernetes/heapster/blob/master/docs/influxdb.md)) folks themselves.
   - The `Heapster` artifacts should be applied as a minimum - this will make the _Kubernetes_ dashboard prettier...
   - Slightly customized _Cluster_ and _Pod_ Grafana dashboards are in `setup/grafana`
@@ -100,8 +110,8 @@ directories. No guarantees.
 |            |             | Management UI    | 15672          | 30101 |
 
 ## GOGS
-[GOGS](https://github.com/gogits/gogs) is a really simple, self-hosted GitHub-like server. This example is setup to 
-use a `Persisent Volume` mount via NFS. The "hardest" part is setting up the `git` remotes to use the off-color SSH 
+[GOGS](https://github.com/gogits/gogs) is a really simple, self-hosted GitHub-like server. This example is setup to
+use a `Persisent Volume` mount via NFS. The "hardest" part is setting up the `git` remotes to use the off-color SSH
 port correctly. In order to do this, you need to use the SSH "form" of the Git URL:
 
 > ssh://git@<kube.node>:30022/<org>/<project>.git
@@ -109,13 +119,13 @@ port correctly. In order to do this, you need to use the SSH "form" of the Git U
 ## RabbitMQ
 A very simple image that relies more on environment variables than a configuration. Currently makes a 3.6.x image,
 including the `autocluster` v 0.10 plugin and enables the _management_ plugin by default.
- 
+
 The Dockerfile relies on _build-arg_ argument passing, so a more recent version of `docker` is required to build it.
 
 _Note:_ I tried using `ADD` to directly copy in the download files, but that seemed to have borked some permissions.
 
 ### Kubernetes
-To run the cluster, the `auth` artifacts need to be applied first so that the auto-cluster plugin can access the 
+To run the cluster, the `auth` artifacts need to be applied first so that the auto-cluster plugin can access the
 Kubernetes API. Note that the authorization is overly broad and should really be dialed down.
 
 ## Grafana
