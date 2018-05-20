@@ -11,6 +11,7 @@ spec:
     protocol: TCP
     targetPort: 8443
     nodePort: 31080
+    name: ui
   selector:
     k8s-app: kubernetes-dashboard
   type: NodePort
