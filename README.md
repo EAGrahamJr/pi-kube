@@ -67,11 +67,11 @@ re-hashed here again, too. But just for the record, the node names are:
 1. Don't forget to reboot to pick up all of the changes...
 
 ### Upgrading
-1, If this was a previous worker/master node, 
+1. If this was a previous worker/master node, 
    - run `kubeadm reset`
    - remove leftovers `rm /etc/kubernetes/bootstrap-kubelet.conf`
 1. Update **all** the packages and downgrade Docker
-   -You may need to re-add the Google `apt` key above
+   - You may need to re-add the Google `apt` key above
 1. Modify `kubeadm` service with the `sed` command and reboot for good measure
 
 ## Start It Up
