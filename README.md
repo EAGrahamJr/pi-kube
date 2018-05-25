@@ -6,11 +6,8 @@ use **any** recent version (e.g. 1.10) to initialize. Accordingly, this popped u
 
 See [Kubeadm init stuck...](https://github.com/kubernetes/kubernetes/issues/61277)
 
-I was able to re-build using `kubeadm` 1.10.2 and the 17.x.x version of `docker-ce` as indicated, but it involved 
-tearing down the old cluster and updating/downgrading packages to get everything to match.
-
-Additional changes from [Aaron Jones](https://gist.github.com/aaronkjones/d996f1a441bc80875fd4929866ca65ad) have
-been incorporated below.
+Despite following many of the tweaks suggested in this issue, I could get the cluster for form,
+but Kube DNS was completely hosed, no matter which mesh provider used.
 
 Caveat emptor.
 
@@ -67,9 +64,10 @@ re-hashed here again, too. But just for the record, the node names are:
 1. Don't forget to reboot to pick up all of the changes...
 
 ### Upgrading
-1, If this was a previous worker/master node, 
+1, If this was a previous node, 
    - run `kubeadm reset`
    - remove leftovers `rm /etc/kubernetes/bootstrap-kubelet.conf`
+   - :bangbang: clear up old networks `sudo ip link delete flannel.1`
 1. Update **all** the packages and downgrade Docker
    -You may need to re-add the Google `apt` key above
 1. Modify `kubeadm` service with the `sed` command and reboot for good measure
@@ -84,10 +82,15 @@ re-hashed here again, too. But just for the record, the node names are:
      sudo chown $(id -u):$(id -g) $HOME/.kube/config
      ```
    - I also made a copy on my workstation and installed `kubectl` for full remote control
-1. :bangbang: Install the internal network - this installation uses _Flannel_
+1. :bangbang: Install the internal network - this installation uses _Flannel_. See the 
+   [kubeadm instructions](https://kubernetes.io/docs/setup/independent/create-cluster-kubeadm/#instructions)
+   for all the details. (Make sure you apply the IP tables fix to _all_ nodes.)
    - ```bash
-     curl -sSL https://rawgit.com/coreos/flannel/v0.9.1/Documentation/kube-flannel.yml | sed "s/amd64/arm/g" | kubectl create -f -
-   ```
+     curl -sSL https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml | sed "s/amd64/arm/g" | kubectl create -f -
+     ```
+   - if Flannel is unable to start up, try running `sudo ip link delete flannel.1` and delete the Flannel pods
+   - if NodePort services are not working, try also `sudo iptables -A FORWARD -o flannel.1 -j ACCEPT` 
+   manually to force them to restart.
 1. Install one or more worker nodes, using the command captured above.
    As shown in the picture, this was done on a 4-node cluster (1 admin, 3 worker)
    - If there are no worker nodes, the next several steps will stall
