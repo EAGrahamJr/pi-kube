@@ -69,7 +69,7 @@ re-hashed here again, too. But just for the record, the node names are:
    - remove leftovers `rm /etc/kubernetes/bootstrap-kubelet.conf`
    - :bangbang: clear up old networks `sudo ip link delete flannel.1`
 1. Update **all** the packages and downgrade Docker
-   -You may need to re-add the Google `apt` key above
+   - You may need to re-add the Google `apt` key above
 1. Modify `kubeadm` service with the `sed` command and reboot for good measure
 
 ## Start It Up
