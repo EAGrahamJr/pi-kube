@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-couch
+  labels:
+    app: couchdb
+spec:
+  resources:
+    requests:
+      storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  selector:
+    matchLabels:
+      app: couchdb

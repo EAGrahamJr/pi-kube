@@ -1,0 +1,66 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: couchdb
+  labels:
+    app: couchdb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: couchdb
+  template:
+    metadata:
+      labels:
+        app: couchdb
+    spec:
+      containers:
+      - name: couchdb
+        image: treehouses/couchdb:2.1.1
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 5984
+            name: couch
+        volumeMounts:
+          - mountPath: /opt/couchdb/data
+            name: nfs-couch
+        livenessProbe:
+          tcpSocket:
+            port: 5984
+          initialDelaySeconds: 45
+          timeoutSeconds: 5
+          failureThreshold: 2
+          successThreshold: 1
+          periodSeconds: 15
+        readinessProbe:
+          tcpSocket:
+            port: 5984
+          initialDelaySeconds: 15
+          timeoutSeconds: 5
+          failureThreshold: 1
+          successThreshold: 1
+          periodSeconds: 15
+      volumes:
+        - name: nfs-couch
+          persistentVolumeClaim:
+            claimName: nfs-couch
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: couchdb
+  name: couchdb
+  namespace: default
+spec:
+  ports:
+  - port: 5984
+    protocol: TCP
+    targetPort: 5984
+    nodePort: 30200
+    name: jdbc
+  selector:
+    app: couchdb
+  type: NodePort
+
