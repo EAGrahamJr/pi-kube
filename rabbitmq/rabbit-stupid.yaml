@@ -1,0 +1,98 @@
+#####################################################################################
+# Single node Rabbit MQ server set up by a stupid script.
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+  labels:
+    app: rabbitmq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+        - name: rabbit
+          image: balenalib/rpi-raspbian
+          ports:
+            - containerPort: 1883
+              name: mqtt
+            - containerPort: 4369
+              name: epmd
+            - containerPort: 5671
+              name: tls
+            - containerPort: 5672
+              name: aqmp
+            - containerPort: 15672
+              name: management
+            - containerPort: 25672
+              name: cluster
+          command:
+            ["/bin/sh"]
+          args:
+            ["/mnt/start.sh"]
+          volumeMounts:
+            - name: rabbit
+              mountPath: /mnt
+      volumes:
+        - name: rabbit
+          configMap:
+            name: rabbit-start
+            items:
+              - key: start-sh
+                path: start.sh
+              - key: rabbitmq-config
+                path: rabbitmq.config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rabbit-start
+data:
+  start-sh: |
+    #!/bin/sh
+    apt-get update
+    apt-get install rabbitmq-server
+    rabbitmq-plugins enable --offline rabbitmq_management
+    mkdir /data
+    chown -R rabbitmq:rabbitmq /data
+    rm -rf /var/lib/apt/lists/*
+    export RABBITMQ_LOGS=- RABBITMQ_SASL_LOGS=- RABBITMQ_MNESIA_BASE=/data
+    cp /mnt/rabbitmq.config /etc/rabbitmq/
+    rabbitmq-server
+  rabbitmq-config: |
+    [{rabbit, [{loopback_users, []}]}].
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: rabbitmq
+  name: rabbitmq
+  namespace: default
+spec:
+  ports:
+    - port: 1883
+      protocol: TCP
+      targetPort: 1883
+      nodePort: 30102
+      name: mqtt
+    - port: 5672
+      protocol: TCP
+      targetPort: 5672
+      nodePort: 30100
+      name: client
+    - port: 15672
+      protocol: TCP
+      targetPort: 15672
+      nodePort: 30101
+      name: management
+  selector:
+    app: rabbitmq
+  type: NodePort

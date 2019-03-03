@@ -3,55 +3,33 @@ A collection of notes and scripts for how I set up my personal Kubernetes cluste
 
 ![PiCluster](PiCluster-11222017.jpg)
 
-Because these instructions have been repeated ad nauseum all over the Interwebs, I used the following site and added 
-a bit of commentary.
+## Background
+Quickly, this started with actually running the "full" Kubernetes application(s) on Raspberry Pi. That stopped
+working around v. 1.9.x due to increased memory requirements, so I've sadly been limited to Docker `swarm` since.
 
-As of 7/4/2018, there is still something at issue with my cluster - the Dashboard cannot "find" Heapster, so it 
-appears the WeaveNET and KubeDNS are non-functional. (I also have what appears to be a couple of flakey Pi, so... )
+Until [k3s](https://k3s.io/) showed up. And since it's _so_ new (of this writing), it has some issues that makes it
+not quite suitable for my internal needs. So these are now my `k3s` hacking notes.
 
-# Quick Setup Instructions
-This [setup guide](http://www.cristiandima.com/running-kubernetes-on-a-raspberry-pi-cluster/) by Christian Dima is 
-pretty typical and appears to work with the newer OS and Docker.
+# Setup
+Just follow the instructions. Stupid simple. Works great, no monitoring. Once the "server" is up, setup an agent
+according to the docs.
 
-## Post Docker Install
-If desired, enable a local insecure registry for your images:
-- Edit `/etc/docker/daemon.json`
-- Add `{ "insecure-registries":["<hostnane>:<port>"] }`
+I also set up the following `bash` alias: `alias k='/usr/local/bin/k3s kubectl'`
 
-## kubeadm
-I used this command instead of the "stock":
-```bash
-kubeadm init --kubernetes-version "v1.9.6" --token-ttl=0
-```
-## Install the dashboard
-Same commands, except I added a NodePort service to access the dashboard without requiring `proxy`
-   - ```bash
-     # pulls the recommended version
-     GITLOC="https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/"
-     kubectl apply -f "$GITLOC/recommended/kubernetes-dashboard-arm.yaml"
-     # set up special admin by-pass for authentication
-     kubectl apply -f setup/dashboard-admin.yaml
-     # add a service to expose across all nodes (see table below)
-     kubectl apply -f setup/dashboard-service.yaml
-     ```
-     
-### Additional Monitoring
-For more bells and whistles for monitoring, install Heapster/InfluxDB/Grafana. The files in the `setup` directory
-were copied (and modified) from the
-[Heapster/Influx](https://github.com/kubernetes/heapster/blob/master/docs/influxdb.md) folks themselves.
-  - The `Heapster` artifacts should be applied as a minimum - this will make the _Kubernetes_ dashboard prettier...
-  - Slightly customized _Cluster_ and _Pod_ Grafana dashboards are in `setup/grafana`
+## Caveats
 
-## RBAC
-Kubernetes now runs by default in a "locked-down" authentication/authorization configuration. If you want to remove the
-security restrictions (_really_ bad idea for a prod system), you can apply
-```bash
-kubectl create clusterrolebinding permissive-binding \
-  --clusterrole=cluster-admin \
-  --user=admin \
-  --user=kubelet \
-  --group=system:serviceaccounts
-```
+1. If you read the installation doc carefully, you'll note there's no monitoring. Oh, well...
+1. The `containerd` services can't pull images from my local, insecure Docker repo.
+1. There's no "stop" command.
+   - The "cleanest" way it appears is to reboot the Pi.
+   - Just stopping/killing `k3s` leaves all the `containerd-shim` processes running
+
+## TBD Insecure Registry
+- Just go with the [Docker.io](https://docs.docker.com/registry/deploying/#run-an-externally-accessible-registry)
+  - Why can't I get this to work?
+- Maybe better on my NAS? 
+   [CenturyLink article](https://www.ctl.io/developers/blog/post/how-to-secure-your-private-docker-registry/)
+
 
 # Services
 Deploy some of this stuff with the `k8s-apply.sh` script. Some of the images are also available in the individual
