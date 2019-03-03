@@ -21,18 +21,18 @@ spec:
       - name: rabbit
         image: {{ docker-repo }}/{{ docker-image }}
         ports:
-          - containerPort: 1883
-            name: mqtt
-          - containerPort: 4369
-            name: epmd
-          - containerPort: 5671
-            name: tls
-          - containerPort: 5672
-            name: aqmp
-          - containerPort: 15672
-            name: management
-          - containerPort: 25672
-            name: cluster
+        - containerPort: 1883
+          name: mqtt
+        - containerPort: 4369
+          name: epmd
+        - containerPort: 5671
+          name: tls
+        - containerPort: 5672
+          name: aqmp
+        - containerPort: 15672
+          name: management
+        - containerPort: 25672
+          name: cluster
 ---
 apiVersion: v1
 kind: Service
