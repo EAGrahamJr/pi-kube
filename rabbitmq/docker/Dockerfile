@@ -1,25 +1,13 @@
-FROM resin/rpi-raspbian:stretch
+FROM balenalib/rpi-raspbian
 
-# get rabbit from whatever was downloaded to the host
-ARG RVER
-ARG DEB
-COPY $DEB /
-
-# install the rabbit, use apt to pick up dependencies, then clean up the mess
-RUN apt-get update -qq && \
-    dpkg -i --force-depends $DEB && \
-    apt-get install --fix-broken --no-install-recommends -yqq && \
-    apt-get install --no-install-recommends -yqq dnsutils && \
-    apt-get autoremove -yqq && \
-    rm -rf /var/lib/apt/lists/* /*.deb
-
-# copy in any plugins
-ADD *.ez /usr/lib/rabbitmq/lib/rabbitmq_server-$RVER/plugins/
+# Using distro-specfic because cheap/easy
+RUN apt-get update && apt-get install rabbitmq-server
 
 # setup
-RUN rabbitmq-plugins enable --offline rabbitmq_management autocluster && \
+RUN rabbitmq-plugins enable --offline rabbitmq_management && \
 	mkdir /data && \
-	chown -R rabbitmq:rabbitmq /data
+	chown -R rabbitmq:rabbitmq /data && \
+	rm -rf /var/lib/apt/lists/*
 
 # log to STDOUT
 ENV RABBITMQ_LOGS=- RABBITMQ_SASL_LOGS=-
