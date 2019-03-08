@@ -1,0 +1,63 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: my-app-name
+  labels:
+    app: my-app-name
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-app-name
+  template:
+    metadata:
+      labels:
+        app: my-app-name
+    spec:
+      containers:
+        - name: my-app-name
+          image: arm32v7/openjdk:8u181-jdk-slim
+          command: [ "/bin/sh", "startup.sh" ]
+          volumeMounts:
+            - name: config
+              mountPath: /config
+      volumes:
+        - name: config
+          configMap:
+            name: my-app-name
+            items:
+              - key: config-properties
+                path: config.properties
+              - key: startup-sh
+                path: startup.sh
+        # use secrets as ENV variables or above
+        - name: secrets
+          secret:
+            - secretName: something
+              items:
+                - key: etc
+                  path: etc
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: my-app-name
+data:
+  config-properties: |
+    # MOM
+    org.openhouse.rabbit.server=rabbitmq
+    org.openhouse.rabbit.port=5672
+    org.openhouse.rabbit.virtualhost=/
+    org.openhouse.rabbit.exchange=homecontrol
+    org.openhouse.rabbit.user=guest
+    org.openhouse.rabbit.pass=guest
+    # service-specific properties
+    ....
+  startup-sh: |
+    apt-get update
+    apt-get install ftpcopy -y
+    rm -rf /var/lib/apt/lists/*
+    # basically re-create the Docker image
+    ftpcopy -u ${FTPUSER} -p ${FTPPASS} ${FTPSERVER} ${FTP_JARPATH} /mnt/${JARNAME}
+    java ${EXTRAS} -Xmx10m -Xss256k -jar /mnt/${JARNAME} /config/config.properties
