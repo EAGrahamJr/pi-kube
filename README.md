@@ -8,7 +8,7 @@ Quickly, this started with actually running the "full" Kubernetes application(s)
 working around v. 1.9.x due to increased memory requirements, so I've sadly been limited to Docker `swarm` since.
 
 Until [k3s](https://k3s.io/) showed up. And since it's _so_ new (of this writing), it has some issues that makes it
-not quite suitable for my internal needs. So these are now my `k3s` hacking notes.
+not _quite_ "ready", so these are now my evolving `k3s` hacking notes.
 
 # Setup
 Just follow the instructions. Stupid simple. Works great, no monitoring. Once the "server" is up, setup an agent
@@ -20,9 +20,7 @@ I also set up the following `bash` alias: `alias k='/usr/local/bin/k3s kubectl'`
 
 1. If you read the installation doc carefully, you'll note there's no monitoring. Oh, well...
 1. The `containerd` services can't pull images from my local, insecure Docker repo.
-1. There's no "stop" command.
-   - The "cleanest" way it appears is to reboot the Pi.
-   - Just stopping/killing `k3s` leaves all the `containerd-shim` processes running
+   - Waiting on docs for the "local copy" deployment type
 
 ## Insecure Registry Work-Around
 Wow - lots of issues trying to get a Docker registry to work without lots of hoops.
