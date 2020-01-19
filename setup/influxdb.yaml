@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: influxdb
-        image: gcr.io/google_containers/heapster-influxdb-arm:v1.3.3
+        image: k8s.gcr.io/heapster-influxdb-arm:v1.5.2
         ports:
           - containerPort: 8086
             name: rest

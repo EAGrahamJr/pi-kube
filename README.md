@@ -5,39 +5,40 @@ A collection of notes and scripts for how I set up my personal Kubernetes cluste
 
 ## Background
 Quickly, this started with actually running the "full" Kubernetes application(s) on Raspberry Pi. That stopped
-working around v. 1.9.x due to increased memory requirements, so I've sadly been limited to Docker `swarm` since.
+working around v. 1.9.x due to increased memory requirements, so I detoured into
 
-Until [k3s](https://k3s.io/) showed up. And since it's _so_ new (of this writing), it has some issues that makes it
-not _quite_ "ready", so these are now my evolving `k3s` hacking notes.
+- Docker `swarm` (there's a reason it didn't catch on for Enterprise)
+- [k3s](https://k3s.io/)
+  - you can check the change history to see some of the weird deployment issues
+  - the _jump-start_ hack I was using was just painful
 
-# Setup
-Just follow the instructions. Stupid simple. Works great, no monitoring. Once the "server" is up, setup an agent
-according to the docs.
+However, `kubeadm` seems to be working again. I followed 
+https://kubecloud.io/setting-up-a-kubernetes-1-11-raspberry-pi-cluster-using-kubeadm-952bbda329c8
+(without setting any versions) and it appears to be working. 
 
-I also set up the following `bash` alias: `alias k='/usr/local/bin/k3s kubectl'`
+**NOTE** There's a small typo - the command to set up the Weave CNI network is missing a trailing `"`
 
-## Caveats
+``bash
+kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+``
 
-1. If you read the installation doc carefully, you'll note there's no monitoring. Oh, well...
-1. The `containerd` services can't pull images from my local, insecure Docker repo.
-   - Waiting on docs for the "local copy" deployment type
+# Issues
+## Monitoring
+Updates to the [setup](setup) files courtesy of https://brookbach.com/2018/10/29/Heapster-on-Kubernetes-1.11.3.html
 
-## Insecure Registry Work-Around
-Wow - lots of issues trying to get a Docker registry to work without lots of hoops.
+## Dashboard
+https://www.donaldsimpson.co.uk/2019/01/09/kubernetes-dashboard-with-heapster-stats/
 
-**BUT** you can run a "startup" script from a `ConfigMap` that basically re-creates the Docker image you were hoping to
-pull from an insecure registry. A really stupid simple example is, obviously,
-[Stupid Rabbit](rabbitmq/rabbit-stupid.yaml)
-
-Most of my home-control apps are currently written in `Java`, so there's also an example 
-[java-jumpstart.yaml](java-jumpstart.yaml) that uses `ftpcopy` to suck in the runnable JAR from
-a "local" FTP server. (N.B. `ftpcopy` doesn't require dependencies)
+This produces the correct token for the Dashboard, but it seems to be broken (404)
+`kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep --color=auto dashboard | awk '{print $1}')`
 
 # Hints and Tricks
 - I couldn't remember which Pi was which, so I used the following to turn on the Disk Activity LED on a node:
   ```bash
   echo none >/sys/class/leds/led0/trigger # to turn off the default behavior
   echo 1 >/sys/class/leds/led0/brightness # turn the LED on
-  echo 0 /sys/class/leds/led0/brightness # turn it off
-  echo mmc0 /sys/class/leds/led0/trigger # restore original behavior
+  echo 0 > /sys/class/leds/led0/brightness # turn it off
+  echo mmc0 > /sys/class/leds/led0/trigger # restore original behavior
   ```
+
+Full instructions: https://www.jeffgeerling.com/blogs/jeff-geerling/controlling-pwr-act-leds-raspberry-pi
