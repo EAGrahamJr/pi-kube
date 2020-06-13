@@ -5,16 +5,21 @@ Collection of some of the items that I'm running (or attempting to).
 
 | App        | Description | Port Description | Container Port | Node Port 
 |------------|-------------|------------------|----------------|-----------
+| Dashboard  | Kube dashboard | UI            |  8443          | 31080
 | Grafana    | Monitoring  | UI               |    80          | 31082 
-| Influxdb   | Monitoring  | DB               |  8086          | 31086 
 | gogs       | github-lite | Client/SSH       |    22          | 30022 
 |            |             | UI               |  3000          | 30023 
-| Rabbit     | MOM         | Client           |  5672          | 30100 
-|            |             | Management UI    | 15672          | 30101 
-| CouchDB    | NoSQL DB    | REST/UI          |  5984          | 30200 
+| CouchDB    | NoSQL DB    | REST/UI          |  5984          | 30200
+| Prometheus | Metrics     | Monitoring       |  9090          | 31090
+| MQTT       | Message broker | MOM           |  1883          | 31883
+|            |                |               |  9001          | 31901
 
-## RabbitMQ
-Unknown status - not using it right now, so don't know if it works or not.
+##RabbitMQ##
+The Rabbit images previously used were "custom" images built locally. Removed since that was in an
+unknown state.
+
+## Grafana
+Straight up throw it on the server. Nothing is pre-configured and there is no data retention.
 
 ## GOGS
 [GOGS](https://github.com/gogits/gogs) is a really simple, self-hosted GitHub-like server. This example is setup to
@@ -23,13 +28,24 @@ port correctly. In order to do this, you need to use the SSH "form" of the Git U
 
 > ssh://git@<kube.node>:30022/<org>/<project>.git
 
-
-### Kubernetes
-To run the cluster, the `auth` artifacts need to be applied first so that the auto-cluster plugin can access the
-Kubernetes API. Note that the authorization is overly broad and should really be dialed down.
-
 ## CouchDB
 [Apache NoSQL](http://couchdb.apache.org/) database, using an NFS mount point. Once installed, you should be able to 
 see the web UI at http://hostname:30200/_util/ui.
 
-Note that this setup has *NOT* been tried due to the DNS issues mentioned at the top.
+## HASS
+Playing around with various [Home Assistant](https://www.home-assistant.io/) integrations.
+
+### Prometheus
+This is a straight up "scrape everything" from a HASS installation. The configuration is **not** included since
+it contains _my_ HASS tokens, but I just copied the example from the 
+[Prometheus Integration](https://www.home-assistant.io/integrations/prometheus/) page.
+
+This also allows you to setup a source for Grafana using the default _service_ configuration:
+
+> http://prometheus:9090
+
+Note there is no authorization required.
+
+### MQTT
+Just a simple setup to receive messages from HASS using the 
+[external integration](https://www.home-assistant.io/integrations/mqtt/).
