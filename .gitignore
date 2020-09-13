@@ -7,3 +7,4 @@
 *.iws
 out
 gen
+/setup-files/
