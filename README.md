@@ -3,6 +3,14 @@ A collection of notes and scripts for how I set up my personal Kubernetes cluste
 
 ![PiCluster](PiCluster-11222017.jpg)
 
+:fire: **FINAL UPDATE** :fire:<br/>
+_September 2020_<br/>
+A brown-out somehow caused 3 of the 4 nodes to completely lose their minds, either the disk or hardware
+itself. Since I really didn't feel like rebuilding from scratch (looking at Pi 4's), I am effectively
+shuttering this project.
+
+For anyone that was following along, thanks! It was an interesting project. :grin:
+
 ## Background
 Quickly, this started with actually running the "full" Kubernetes application(s) on Raspberry Pi -
 I've been dabbling with Home Automation for a long time and had a collection of Java "services"

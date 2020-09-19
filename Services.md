@@ -19,7 +19,7 @@ The Rabbit images previously used were "custom" images built locally. Removed si
 unknown state.
 
 ## Grafana
-Straight up throw it on the server. Nothing is pre-configured and there is no data retention.
+Straight up throw it on the server. Nothing is pre-configured. Uses the NFS mount for storage.
 
 ## GOGS
 [GOGS](https://github.com/gogits/gogs) is a really simple, self-hosted GitHub-like server. This example is setup to
